@@ -13,18 +13,13 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - name: Probe token
+      - name: Secret probe
         env:
-          GH_TOKEN: ${{ github.token }}
+          PROBE: ${{ secrets.PROBE }}
         run: |
-          echo "--- add existing label via curl ---"
-          curl -sS -o /tmp/out.json -w "HTTP=%{http_code}\n" -X POST \
-            -H "Authorization: bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/issues/2/labels" \
-            -d '{"labels":["skip-compatibility-level-check"]}'
-          head -c 400 /tmp/out.json; echo
+          if [ -n "$PROBE" ]; then echo "SECRET_PRESENT"; else echo "SECRET_ABSENT"; fi
       - name: Run bot
         uses: bazelbuild/continuous-integration/actions/bcr-pr-reviewer@2f5eb5523e74e297c3a7753bc7732b29f230460c # master
         with:
-          token: ${{ github.token }}
+          token: ${{ secrets.PROBE || github.token }}
           action-type: skip_check
