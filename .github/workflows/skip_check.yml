@@ -1,0 +1,19 @@
+name: skip_check
+on:
+  issue_comment:
+    types: [created, edited]
+permissions:
+  contents: read
+
+jobs:
+  comment_bot:
+    if: startsWith(github.event.comment.body, '@bazel-io skip_check ')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Run bot
+        uses: bazelbuild/continuous-integration/actions/bcr-pr-reviewer@2f5eb5523e74e297c3a7753bc7732b29f230460c # master
+        with:
+          token: ${{ github.token }}
+          action-type: skip_check
